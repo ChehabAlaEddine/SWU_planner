@@ -1,0 +1,7 @@
+- [x] Add Google Maps dependencies to `libs.versions.toml`
+- [x] Add dependencies to `app/build.gradle.kts`
+- [x] Configure `AndroidManifest.xml` with API Key and permissions
+- [x] Update `MapScreen.kt` to show real Google Map
+- [x] Verification
+    - [x] `gradle build`
+    - [x] `analyze_file`
