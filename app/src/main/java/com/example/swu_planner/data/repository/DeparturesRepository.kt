@@ -14,7 +14,7 @@ class DeparturesRepository(private val api: SwuMobilityApi) {
             val response = api.getStopDepartures(stopNumber, limit)
 
             // Check if stop was found
-            if (response.StopPassage.State.lowercase() != "ok") {
+            if (response.StopPassage.State?.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Stop $stopNumber not found (State: ${response.StopPassage.State})")
                 )

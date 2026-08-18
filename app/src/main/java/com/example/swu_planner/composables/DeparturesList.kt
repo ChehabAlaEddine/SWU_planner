@@ -1,5 +1,6 @@
 package com.example.swu_planner.composables
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -28,120 +28,96 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.swu_planner.data.model.Departure
+import com.example.swu_planner.utils.getRouteColor
+import com.example.swu_planner.utils.getRouteShape
+import com.example.swu_planner.utils.formatTime
+import com.example.swu_planner.utils.formatCountdown
+import com.example.swu_planner.utils.getCountdownColor
 
-// ui/departures/composables/DeparturesList.kt
 @Composable
 fun DeparturesList(departures: List<Departure>) {
+    Log.d("DeparturesList", "Departures: $departures")
     LazyColumn {
         items(departures.size) { index ->
             DepartureItem(departures[index])
-
-            if (index < departures.size - 1) {
-                Divider()
-            }
         }
     }
 }
 
 @Composable
 fun DepartureItem(departure: Departure) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Left part: Route badge and Destination
             Row(
                 modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Route badge
                 RouteBadge(routeName = departure.RouteName)
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Column {
-                    // Destination
-                    Text(
-                        text = departure.DepartureDirectionText,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    // Platform
-                    Text(
-                        text = "Platform ${departure.PlatformName ?: "-"}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.DarkGray
-                    )
-                }
+                Text(
+                    text = departure.DepartureDirectionText,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
             }
 
-            // Right side: Time and countdown
-            Column(
-                horizontalAlignment = Alignment.End
+            // Right part: Time, Deviation, and Platform side-by-side
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 8.dp)
             ) {
-                // Departure time
+                // Time (Fixed width for vertical alignment)
                 Text(
                     text = formatTime(departure.DepartureTimeActual),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 14.sp,
+                    modifier = Modifier.width(42.dp)
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Countdown
-                Text(
-                    text = formatCountdown(departure.DepartureCountdown),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = getCountdownColor(departure.DepartureDeviation)
-                )
-
-                // Deviation indicator
-                if (departure.DepartureDeviation != 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "${if (departure.DepartureDeviation > 0) "+" else ""}${departure.DepartureDeviation}s",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Red
-                    )
+                // Deviation (Fixed width to keep Platform aligned)
+                Box(
+                    modifier = Modifier.width(50.dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (kotlin.math.abs(departure.DepartureDeviation) > 60) {
+                        val minutes = kotlin.math.abs(departure.DepartureDeviation) / 60
+                        val (text, color) = if (departure.DepartureDeviation > 0) {
+                            "+$minutes min" to Color.Red
+                        } else {
+                            "-$minutes min" to Color(0xFF4CAF50)
+                        }
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = color,
+                            modifier = Modifier.padding(start = 4.dp),
+                            maxLines = 1
+                        )
+                    }
                 }
+
+                // Platform (Fixed width)
+                Text(
+                    text = departure.PlatformName ?: "-",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.width(24.dp),
+                    textAlign = TextAlign.End
+                )
             }
         }
     }
-}
 
-fun formatTime(timestamp: String): String {
-    return try {
-        timestamp.substring(11, 16)  // "17:31"
-    } catch (e: Exception) {
-        ""
-    }
-}
 
-fun formatCountdown(seconds: Int): String {
-    return when {
-        seconds < 60 -> "$seconds s"
-        seconds < 3600 -> "${seconds / 60} min"
-        else -> "${seconds / 3600} h"
-    }
-}
-
-fun getCountdownColor(deviation: Int): Color {
-    return when {
-        deviation == 0 -> Color(0xFF4CAF50) // Material Green
-        deviation < 300 -> Color(0xFFFBC02D) // Material Yellow/Gold
-        else -> Color(0xFFF44336) // Material Red
-    }
-}
 
 @Composable
 fun RouteBadge(routeName: String) {
@@ -165,29 +141,3 @@ fun RouteBadge(routeName: String) {
     }
 }
 
-fun getRouteColor(routeName: String): Color {
-    return when (routeName) {
-        "1" -> Color(0xFFE31E24)
-        "2" -> Color(0xFF3EAF7C)
-        "4" -> Color(0xFF007D79)
-        "5" -> Color(0xFF009EE3)
-        "6" -> Color(0xFFF39200)
-        "7" -> Color(0xFFAF007E)
-        "8" -> Color(0xFF6B4095)
-        "9" -> Color(0xFFD17FB1)
-        "10" -> Color(0xFFA1A052)
-        "11" -> Color(0xFF003882)
-        "12" -> Color(0xFFFFD600)
-        "13" -> Color(0xFF8C5B3E)
-        "14" -> Color(0xFF00A4E4)
-        "15" -> Color(0xFF9E7CB8)
-        else -> Color.Gray
-    }
-}
-
-fun getRouteShape(routeName: String): Shape {
-    return when (routeName) {
-        "1", "2" -> RoundedCornerShape(1.dp) // Tram lines (Squares)
-        else -> CircleShape // Bus lines (Circles)
-    }
-}

@@ -1,15 +1,14 @@
 package com.example.swu_planner.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -22,15 +21,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.swu_planner.R
 import com.example.swu_planner.data.model.Stop
-import com.example.swu_planner.ui.departures.DeparturesUiState
+import com.example.swu_planner.data.model.Trip
 import com.example.swu_planner.ui.departures.DeparturesViewModel
 import com.example.swu_planner.ui.stops.StopsUiState
 import com.example.swu_planner.ui.stops.StopsViewModel
+import com.example.swu_planner.ui.vehicles.VehicleUiState
+import com.example.swu_planner.ui.vehicles.VehicleViewModel
 import com.example.swu_planner.ui.theme.SWU_plannerTheme
+import com.example.swu_planner.utils.bitmapDescriptorFromVector
+import com.example.swu_planner.utils.createVehicleIcon
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -44,29 +50,57 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun MapScreen(
     stopsViewModel: StopsViewModel,
-    departuresViewModel: DeparturesViewModel
+    departuresViewModel: DeparturesViewModel,
+    vehicleViewModel: VehicleViewModel
 ) {
     val uiState by stopsViewModel.uiState.collectAsState()
+    val vehicleUiState by vehicleViewModel.uiState.collectAsState()
+
+    var displayedTrips by remember { mutableStateOf<List<Trip>>(emptyList()) }
+
+    LaunchedEffect(vehicleUiState) {
+        if (vehicleUiState is VehicleUiState.Success) {
+            displayedTrips = (vehicleUiState as VehicleUiState.Success).trips
+        }
+    }
     
     val ulm = LatLng(48.3996, 9.9915)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(ulm, 14f)
     }
 
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showStopBottomSheet by remember { mutableStateOf(false) }
     var selectedStop by remember { mutableStateOf<Stop?>(null) }
-    val sheetState = rememberModalBottomSheetState()
+    val stopSheetState = rememberModalBottomSheetState()
+
+    var showVehicleBottomSheet by remember { mutableStateOf(false) }
+    var selectedTrip by remember { mutableStateOf<Trip?>(null) }
+    val vehicleSheetState = rememberModalBottomSheetState()
+
+    val context = LocalContext.current
+    val stopIcon = remember(context) {
+        bitmapDescriptorFromVector(context, R.drawable.ic_stop_marker)
+    }
 
     // Initial load
     LaunchedEffect(Unit) {
         stopsViewModel.showAllStops()
+        vehicleViewModel.loadActiveTrips()
+    }
+
+    // Periodically refresh vehicle trips
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(15000)
+            vehicleViewModel.loadActiveTrips()
+        }
     }
 
     // Trigger refresh/load when zoom changes significantly or when requested
     LaunchedEffect(cameraPositionState) {
         snapshotFlow { cameraPositionState.position.zoom }
             .distinctUntilChanged()
-            .collectLatest { zoom ->
+            .collectLatest { _ ->
                 if (uiState is StopsUiState.Idle) {
                     stopsViewModel.loadAllStops()
                 }
@@ -116,13 +150,41 @@ fun MapScreen(
                         state = MarkerState(position = LatLng(stop.latitude, stop.longitude)),
                         title = stop.name,
                         snippet = "Stop #${stop.number}",
+                        icon = stopIcon,
                         onClick = {
+                            //Log.d("MapScreen", "Selected Stop: ${stop}")
                             selectedStop = stop
                             departuresViewModel.loadDepartures(stop.number.toString())
-                            showBottomSheet = true
+                            showStopBottomSheet = true
                             true // Return true to indicate we handled the click
                         }
                     )
+                }
+
+                // Show vehicle trips
+                val vehicleIconsCache = remember { mutableMapOf<String, BitmapDescriptor>() }
+                
+                displayedTrips.forEach { trip ->
+                    if (trip.latitude != null && trip.longitude != null) {
+                        val routeName = trip.routeNumber?.rem(100).toString() ?: ""
+                        //Log.d("MapScreen", ": routeNumber: ${trip.routeNumber}  -->  routeName: $routeName ")
+                        val icon = vehicleIconsCache.getOrPut(routeName) {
+                            createVehicleIcon(context, routeName)
+                        }
+                        
+                        Marker(
+                            state = MarkerState(position = LatLng(trip.latitude, trip.longitude)),
+                            title = "Route ${trip.routeNumber}: ${trip.destination}",
+                            snippet = "Vehicle #${trip.vehicleNumber} | Delay: ${trip.deviation}s",
+                            icon = icon,
+                            onClick = {
+                                selectedTrip = trip
+                                vehicleViewModel.loadVehiclePassage(trip.vehicleNumber.toString())
+                                showVehicleBottomSheet = true
+                                true
+                            }
+                        )
+                    }
                 }
             }
 
@@ -134,15 +196,28 @@ fun MapScreen(
         }
     }
 
-    if (showBottomSheet && selectedStop != null) {
+    if (showStopBottomSheet && selectedStop != null) {
         DeparturePopup(
             selectedStop = selectedStop!!,
             departuresViewModel = departuresViewModel,
-            sheetState = sheetState,
-            onDismissRequest = { showBottomSheet = false }
+            sheetState = stopSheetState,
+            onDismissRequest = { showStopBottomSheet = false }
+        )
+    }
+
+    if (showVehicleBottomSheet && selectedTrip != null) {
+        VehiclePassagePopup(
+            trip = selectedTrip!!,
+            viewModel = vehicleViewModel,
+            sheetState = vehicleSheetState,
+            onDismissRequest = { 
+                showVehicleBottomSheet = false
+                vehicleViewModel.clearPassage()
+            }
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

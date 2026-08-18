@@ -3,6 +3,8 @@ package com.example.swu_planner.data.api
 import com.example.swu_planner.data.model.DeparturesResponse
 import com.example.swu_planner.data.model.StopBaseDataResponse
 import com.example.swu_planner.data.model.StopDto
+import com.example.swu_planner.data.model.VehiclePassageResponse
+import com.example.swu_planner.data.model.VehicleTripResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -27,6 +29,17 @@ interface SwuMobilityApi {
         @Query("StopNumber") stopNumber: String,
         @Query("ContentScope") scope: String = "extended"
     ): StopBaseDataResponse<StopDto>
+
+    // get all current vehicle trips
+    @GET("vehicle/trip/Trip")
+    suspend fun getAllTrips(): VehicleTripResponse
+
+    // get all stops for given vehicle
+    @GET("vehicle/trip/Passage")
+    suspend fun getVehiclePassage(
+        @Query("VehicleNumber") vehicleNumber: String,
+        @Query("Range") range: String = "3"
+    ): VehiclePassageResponse
 
     /*
     @GET("stop/passage/Arrivals")

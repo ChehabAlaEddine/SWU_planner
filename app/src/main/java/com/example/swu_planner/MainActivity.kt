@@ -1,6 +1,7 @@
 package com.example.swu_planner
 
 import android.os.Bundle
+import com.google.android.gms.maps.MapsInitializer
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,13 +30,16 @@ import com.example.swu_planner.composables.StopsScreen
 import com.example.swu_planner.data.api.SwuApiClient
 import com.example.swu_planner.data.repository.DeparturesRepository
 import com.example.swu_planner.data.repository.StopsRepository
+import com.example.swu_planner.data.repository.VehicleRepository
 import com.example.swu_planner.ui.theme.SWU_plannerTheme
 import com.example.swu_planner.ui.departures.DeparturesViewModel
 import com.example.swu_planner.ui.stops.StopsViewModel
+import com.example.swu_planner.ui.vehicles.VehicleViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MapsInitializer.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             SWU_plannerTheme {
@@ -59,6 +63,11 @@ fun MainScreen() {
         val api = SwuApiClient.api
         val stopsRepository = StopsRepository(api)
         StopsViewModel(stopsRepository)
+    }
+    val vehicleViewModel = remember {
+        val api = SwuApiClient.api
+        val vehicleRepository = VehicleRepository(api)
+        VehicleViewModel(vehicleRepository)
     }
 
     Scaffold(
@@ -92,7 +101,8 @@ fun MainScreen() {
                 "stops" -> StopsScreen(viewModel = stopsViewModel)
                 "map" -> MapScreen(
                     stopsViewModel = stopsViewModel,
-                    departuresViewModel = departuresViewModel
+                    departuresViewModel = departuresViewModel,
+                    vehicleViewModel = vehicleViewModel
                 )
             }
         }

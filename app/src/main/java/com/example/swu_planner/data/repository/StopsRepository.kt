@@ -9,7 +9,7 @@ class StopsRepository(private val api: SwuMobilityApi) {
     suspend fun getAllStops(): Result<List<StopDto>> {
         return try {
             val response = api.getAllStops()
-            if (response.StopAttributes.CurrentStatus.lowercase() != "ok") {
+            if (response.StopAttributes.CurrentStatus?.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Failed to fetch stops (Status: ${response.StopAttributes.CurrentStatus})")
                 )
@@ -25,7 +25,7 @@ class StopsRepository(private val api: SwuMobilityApi) {
     suspend fun getStop(stopNumber: String): Result<StopDto> {
         return try {
             val response = api.getStop(stopNumber)
-            if (response.StopAttributes.CurrentStatus.lowercase() != "ok") {
+            if (response.StopAttributes.CurrentStatus?.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Stop $stopNumber not found (Status: ${response.StopAttributes.CurrentStatus})")
                 )

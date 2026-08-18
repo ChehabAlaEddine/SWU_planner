@@ -1,5 +1,6 @@
 package com.example.swu_planner.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -123,6 +124,7 @@ fun IdleState() {
 
 @Composable
 fun ErrorState(message: String) {
+    Log.e("DeparturesScreen", "Error: $message")
     Box(
         modifier = Modifier
             .fillMaxSize()
