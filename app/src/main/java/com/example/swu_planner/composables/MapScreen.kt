@@ -56,6 +56,7 @@ fun MapScreen(
     val uiState by stopsViewModel.uiState.collectAsState()
     val vehicleUiState by vehicleViewModel.uiState.collectAsState()
 
+    val allStops = (uiState as? StopsUiState.Success)?.stops ?: emptyList()
     var displayedTrips by remember { mutableStateOf<List<Trip>>(emptyList()) }
 
     LaunchedEffect(vehicleUiState) {
@@ -107,8 +108,6 @@ fun MapScreen(
             }
     }
 
-    val allStops = (uiState as? StopsUiState.Success)?.stops ?: emptyList()
-
     // Local filtering based on visible region
     val visibleStops = remember(allStops, cameraPositionState.isMoving, cameraPositionState.projection) {
         val bounds = cameraPositionState.projection?.visibleRegion?.latLngBounds
@@ -124,22 +123,9 @@ fun MapScreen(
             .fillMaxSize()
             .padding(16.dp),
     ) {
-        Text(
-            text = "Network Map",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-        
-        Text(
-            text = "Showing ${visibleStops.size} stops in view",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary
-        )
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 16.dp)
         ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
@@ -152,7 +138,6 @@ fun MapScreen(
                         snippet = "Stop #${stop.number}",
                         icon = stopIcon,
                         onClick = {
-                            //Log.d("MapScreen", "Selected Stop: ${stop}")
                             selectedStop = stop
                             departuresViewModel.loadDepartures(stop.number.toString())
                             showStopBottomSheet = true
@@ -167,7 +152,6 @@ fun MapScreen(
                 displayedTrips.forEach { trip ->
                     if (trip.latitude != null && trip.longitude != null) {
                         val routeName = trip.routeNumber?.rem(100).toString() ?: ""
-                        //Log.d("MapScreen", ": routeNumber: ${trip.routeNumber}  -->  routeName: $routeName ")
                         val icon = vehicleIconsCache.getOrPut(routeName) {
                             createVehicleIcon(context, routeName)
                         }

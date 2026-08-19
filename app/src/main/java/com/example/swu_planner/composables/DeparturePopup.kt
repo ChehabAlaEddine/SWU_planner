@@ -59,6 +59,7 @@ fun DeparturePopup(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
+        sheetGesturesEnabled = false,
         sheetState = sheetState,
         modifier = Modifier.fillMaxHeight(0.6f)
     ) {

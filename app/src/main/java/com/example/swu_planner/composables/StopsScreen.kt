@@ -40,7 +40,7 @@ fun StopsScreen(viewModel: StopsViewModel) {
         uiState = uiState,
         onLoadAllStops = { viewModel.loadAllStops() },
         onLoadStop = { viewModel.loadStop(it) },
-        onBack = { viewModel.showAllStops() }
+        onBack = { viewModel.loadAllStops() }
     )
 }
 
