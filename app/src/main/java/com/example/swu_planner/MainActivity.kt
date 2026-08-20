@@ -23,11 +23,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.room.Room
 import com.example.swu_planner.composables.DeparturesScreen
 import com.example.swu_planner.composables.MapScreen
 import com.example.swu_planner.composables.StopsScreen
 import com.example.swu_planner.data.api.SwuApiClient
+import com.example.swu_planner.data.local.AppDatabase
 import com.example.swu_planner.data.repository.DeparturesRepository
 import com.example.swu_planner.data.repository.StopsRepository
 import com.example.swu_planner.data.repository.VehicleRepository
@@ -52,6 +55,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf("map") }
+    val context = LocalContext.current
+
+    // Initialize Database
+    val database = remember {
+        Room.databaseBuilder(
+            context.applicationContext,
+            AppDatabase::class.java,
+            "swu_planner_db"
+        ).build()
+    }
 
     // Create dependencies manually (bottom-up) and remember them
     val departuresViewModel = remember {
@@ -61,7 +74,7 @@ fun MainScreen() {
     }
     val stopsViewModel = remember {
         val api = SwuApiClient.api
-        val stopsRepository = StopsRepository(api)
+        val stopsRepository = StopsRepository(api, database.stopDao())
         StopsViewModel(stopsRepository)
     }
     val vehicleViewModel = remember {
