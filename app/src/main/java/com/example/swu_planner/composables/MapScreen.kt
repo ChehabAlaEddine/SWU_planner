@@ -8,9 +8,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
@@ -87,7 +85,7 @@ fun MapScreen(
             displayedTrips = (vehicleUiState as VehicleUiState.Success).trips
         }
     }
-    
+
     val ulm = LatLng(48.3996, 9.9915)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(ulm, 14f)
@@ -167,49 +165,24 @@ fun MapScreen(
         }
     }
 
-    // Trigger refresh/load when zoom changes significantly or when requested
-    LaunchedEffect(cameraPositionState) {
-        snapshotFlow { cameraPositionState.position.zoom }
-            .distinctUntilChanged()
-            .collectLatest { _ ->
-                if (uiState is StopsUiState.Idle) {
-                    stopsViewModel.loadAllStops()
-                }
-            }
-    }
-
     val allStops = (uiState as? StopsUiState.Success)?.stops ?: emptyList()
 
-    // Local filtering based on visible region
-    val visibleStops = remember(allStops, cameraPositionState.isMoving, cameraPositionState.projection) {
-        val bounds = cameraPositionState.projection?.visibleRegion?.latLngBounds
-        if (bounds != null) {
-            allStops.filter { bounds.contains(LatLng(it.latitude, it.longitude)) }
-        } else {
-            allStops
-        }
-    }
-
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            properties = MapProperties(
+                isMyLocationEnabled = isLocationPermissionGranted
+            ),
+            uiSettings = MapUiSettings(
+                myLocationButtonEnabled = false // We use our custom FAB
+            )
         ) {
-            GoogleMap(
-                modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState,
-                properties = MapProperties(
-                    isMyLocationEnabled = isLocationPermissionGranted
-                ),
-                uiSettings = MapUiSettings(
-                    myLocationButtonEnabled = false // We use our custom FAB
-                )
-            ) {
-                visibleStops.forEach { stop ->
-                    Marker(
+            allStops.forEach { stop ->
+                Marker(
                         state = MarkerState(position = LatLng(stop.latitude, stop.longitude)),
                         title = stop.name,
                         snippet = "Stop #${stop.number}",
@@ -226,7 +199,7 @@ fun MapScreen(
 
                 // Show vehicle trips
                 val vehicleIconsCache = remember { mutableMapOf<String, BitmapDescriptor>() }
-                
+
                 displayedTrips.forEach { trip ->
                     if (trip.latitude != null && trip.longitude != null) {
                         val routeName = trip.routeNumber?.rem(100).toString() ?: ""
@@ -234,7 +207,7 @@ fun MapScreen(
                         val icon = vehicleIconsCache.getOrPut(routeName) {
                             createVehicleIcon(context, routeName)
                         }
-                        
+
                         Marker(
                             state = MarkerState(position = LatLng(trip.latitude, trip.longitude)),
                             title = "Route ${trip.routeNumber}: ${trip.destination}",
@@ -275,7 +248,6 @@ fun MapScreen(
                 )
             }
         }
-    }
 
     if (showStopBottomSheet && selectedStop != null) {
         DeparturePopup(
@@ -291,7 +263,7 @@ fun MapScreen(
             trip = selectedTrip!!,
             viewModel = vehicleViewModel,
             sheetState = vehicleSheetState,
-            onDismissRequest = { 
+            onDismissRequest = {
                 showVehicleBottomSheet = false
                 vehicleViewModel.clearPassage()
             }
