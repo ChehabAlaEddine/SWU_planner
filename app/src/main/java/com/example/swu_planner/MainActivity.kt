@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    var currentScreen by remember { mutableStateOf("departures") }
+    var currentScreen by remember { mutableStateOf("map") }
 
     // Create dependencies manually (bottom-up) and remember them
     val departuresViewModel = remember {
