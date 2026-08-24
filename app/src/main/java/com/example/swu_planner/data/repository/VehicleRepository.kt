@@ -5,8 +5,9 @@ import com.example.swu_planner.data.api.SwuMobilityApi
 import com.example.swu_planner.data.model.Trip
 import com.example.swu_planner.data.model.VehiclePassage
 import com.example.swu_planner.data.model.mapper.toDomain
+import javax.inject.Inject
 
-class VehicleRepository(private val api: SwuMobilityApi) {
+class VehicleRepository @Inject constructor(private val api: SwuMobilityApi) {
     suspend fun getActiveTrips(): Result<List<Trip>> {
         return try {
             val response = api.getAllTrips()

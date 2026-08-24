@@ -1,9 +1,14 @@
 package com.example.swu_planner.di
 
+import android.content.Context
+import androidx.room.Room
 import com.example.swu_planner.data.api.SwuMobilityApi
+import com.example.swu_planner.data.local.AppDatabase
+import com.example.swu_planner.data.local.dao.StopDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,39 +18,45 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule {
+object InfrastructureModule {
 
     private const val BASE_URL = "https://api.swu.de/mobility/v1/"
 
     @Provides
     @Singleton
-    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
+    fun provideOkHttpClient(): OkHttpClient {
+        val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-    }
-
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
+            .addInterceptor(logging)
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideSwuMobilityApi(okHttpClient: OkHttpClient): SwuMobilityApi {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+            .create(SwuMobilityApi::class.java)
     }
 
     @Provides
     @Singleton
-    fun provideSwuMobilityApi(retrofit: Retrofit): SwuMobilityApi {
-        return retrofit.create(SwuMobilityApi::class.java)
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "swu_planner_db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStopDao(database: AppDatabase): StopDao {
+        return database.stopDao()
     }
 }

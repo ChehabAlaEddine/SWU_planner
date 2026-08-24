@@ -3,8 +3,9 @@ package com.example.swu_planner.data.repository
 import android.util.Log
 import com.example.swu_planner.data.api.SwuMobilityApi
 import com.example.swu_planner.data.model.Departure
+import javax.inject.Inject
 
-class DeparturesRepository(private val api: SwuMobilityApi) {
+class DeparturesRepository @Inject constructor(private val api: SwuMobilityApi) {
 
     suspend fun getDepartures(
         stopNumber: String,
@@ -14,7 +15,7 @@ class DeparturesRepository(private val api: SwuMobilityApi) {
             val response = api.getStopDepartures(stopNumber, limit)
 
             // Check if stop was found
-            if (response.StopPassage.State?.lowercase() != "ok") {
+            if (response.StopPassage.State.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Stop $stopNumber not found (State: ${response.StopPassage.State})")
                 )

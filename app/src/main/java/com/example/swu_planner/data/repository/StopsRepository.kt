@@ -6,9 +6,10 @@ import com.example.swu_planner.data.local.dao.StopDao
 import com.example.swu_planner.data.local.entities.toDto
 import com.example.swu_planner.data.local.entities.toEntity
 import com.example.swu_planner.data.model.StopDto
+import javax.inject.Inject
 
 
-class StopsRepository(
+class StopsRepository @Inject constructor(
     private val api: SwuMobilityApi,
     private val stopDao: StopDao
 ) {

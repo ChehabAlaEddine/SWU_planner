@@ -23,10 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.room.Room
 import com.example.swu_planner.composables.DeparturesScreen
 import com.example.swu_planner.composables.MapScreen
 import com.example.swu_planner.composables.StopsScreen
