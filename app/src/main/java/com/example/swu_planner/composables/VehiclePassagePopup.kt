@@ -153,8 +153,7 @@ fun VehiclePassageItem(passage: VehiclePassage) {
             Text(
                 text = formatTime(scheduledTime),
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Normal,
-                color = Color.Black
+                fontWeight = FontWeight.Normal
             )
         }
     }

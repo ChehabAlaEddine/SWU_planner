@@ -25,20 +25,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.room.Room
 import com.example.swu_planner.composables.DeparturesScreen
 import com.example.swu_planner.composables.MapScreen
 import com.example.swu_planner.composables.StopsScreen
-import com.example.swu_planner.data.api.SwuApiClient
-import com.example.swu_planner.data.local.AppDatabase
-import com.example.swu_planner.data.repository.DeparturesRepository
-import com.example.swu_planner.data.repository.StopsRepository
-import com.example.swu_planner.data.repository.VehicleRepository
 import com.example.swu_planner.ui.theme.SWU_plannerTheme
 import com.example.swu_planner.ui.departures.DeparturesViewModel
 import com.example.swu_planner.ui.stops.StopsViewModel
 import com.example.swu_planner.ui.vehicles.VehicleViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,33 +53,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf("map") }
-    val context = LocalContext.current
 
-    // Initialize Database
-    val database = remember {
-        Room.databaseBuilder(
-            context.applicationContext,
-            AppDatabase::class.java,
-            "swu_planner_db"
-        ).build()
-    }
-
-    // Create dependencies manually (bottom-up) and remember them
-    val departuresViewModel = remember {
-        val api = SwuApiClient.api
-        val departuresRepository = DeparturesRepository(api)
-        DeparturesViewModel(departuresRepository)
-    }
-    val stopsViewModel = remember {
-        val api = SwuApiClient.api
-        val stopsRepository = StopsRepository(api, database.stopDao())
-        StopsViewModel(stopsRepository)
-    }
-    val vehicleViewModel = remember {
-        val api = SwuApiClient.api
-        val vehicleRepository = VehicleRepository(api)
-        VehicleViewModel(vehicleRepository)
-    }
+    // Use Hilt to provide ViewModels
+    val departuresViewModel: DeparturesViewModel = hiltViewModel()
+    val stopsViewModel: StopsViewModel = hiltViewModel()
+    val vehicleViewModel: VehicleViewModel = hiltViewModel()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

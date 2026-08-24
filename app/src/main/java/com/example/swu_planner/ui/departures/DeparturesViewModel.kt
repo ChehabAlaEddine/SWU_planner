@@ -4,12 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.swu_planner.data.repository.DeparturesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class DeparturesViewModel(
+@HiltViewModel
+class DeparturesViewModel @Inject constructor(
     private val repository: DeparturesRepository
 ) : ViewModel() {
 

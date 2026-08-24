@@ -28,7 +28,7 @@ fun getCountdownColor(deviation: Int): Color {
 
 fun getOnTimeColor(deviation: Int?): Color {
     return when {
-        deviation == null -> Color.Black
+        deviation == null -> Color.Unspecified
         kotlin.math.abs(deviation) <= 60 -> Color(0xFF4CAF50) // Green (On Time)
         deviation > 60 -> Color(0xFFF44336) // Red (Late)
         else -> Color(0xFF4CAF50) // Green (Early)

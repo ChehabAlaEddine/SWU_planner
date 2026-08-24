@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.swu_planner.data.model.mapper.toDomain
 import com.example.swu_planner.data.repository.StopsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class StopsViewModel(
+@HiltViewModel
+class StopsViewModel @Inject constructor(
     private val repository: StopsRepository
 ) : ViewModel() {
 

@@ -3,11 +3,14 @@ package com.example.swu_planner.ui.vehicles
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.swu_planner.data.repository.VehicleRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class VehicleViewModel(private val repository: VehicleRepository) : ViewModel() {
+@HiltViewModel
+class VehicleViewModel @Inject constructor(private val repository: VehicleRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow<VehicleUiState>(VehicleUiState.Idle)
     val uiState: StateFlow<VehicleUiState> = _uiState
