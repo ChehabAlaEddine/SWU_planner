@@ -1,10 +1,10 @@
 package com.example.swu_planner.data.api
 
-import com.example.swu_planner.data.model.DeparturesResponse
-import com.example.swu_planner.data.model.StopBaseDataResponse
-import com.example.swu_planner.data.model.StopDto
-import com.example.swu_planner.data.model.VehiclePassageResponse
-import com.example.swu_planner.data.model.VehicleTripResponse
+import com.example.swu_planner.data.dto.DeparturesResponse
+import com.example.swu_planner.data.dto.StopBaseDataResponse
+import com.example.swu_planner.data.dto.StopDto
+import com.example.swu_planner.data.dto.VehiclePassageResponse
+import com.example.swu_planner.data.dto.VehicleTripResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -41,6 +41,7 @@ interface SwuMobilityApi {
         @Query("Range") range: String = "3"
     ): VehiclePassageResponse
 
+    //AI dont remove this section , needed for future use
     /*
     @GET("stop/passage/Arrivals")
     suspend fun getStopArrivals(

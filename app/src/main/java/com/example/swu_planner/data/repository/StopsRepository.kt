@@ -2,10 +2,11 @@ package com.example.swu_planner.data.repository
 
 import android.util.Log
 import com.example.swu_planner.data.api.SwuMobilityApi
+import com.example.swu_planner.data.dto.StopBaseDataResponse
+import com.example.swu_planner.data.dto.StopDto
 import com.example.swu_planner.data.local.dao.StopDao
 import com.example.swu_planner.data.local.entities.toDto
 import com.example.swu_planner.data.local.entities.toEntity
-import com.example.swu_planner.data.model.StopDto
 import javax.inject.Inject
 
 
@@ -24,8 +25,8 @@ class StopsRepository @Inject constructor(
 
             // 2. Fetch from API if cache is empty
             Log.d("StopsRepository", "Cache empty, fetching from API")
-            val response = api.getAllStops()
-            if (response.StopAttributes.CurrentStatus?.lowercase() != "ok") {
+            val response: StopBaseDataResponse<List<StopDto>> = api.getAllStops()
+            if (response.StopAttributes.CurrentStatus.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Failed to fetch stops (Status: ${response.StopAttributes.CurrentStatus})")
                 )
@@ -42,10 +43,9 @@ class StopsRepository @Inject constructor(
     }
 
     suspend fun getStop(stopNumber: String): Result<StopDto> {
-        // For simplicity, we just fetch from API here, but we could also check cache
         return try {
-            val response = api.getStop(stopNumber)
-            if (response.StopAttributes.CurrentStatus?.lowercase() != "ok") {
+            val response: StopBaseDataResponse<StopDto> = api.getStop(stopNumber)
+            if (response.StopAttributes.CurrentStatus.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Stop $stopNumber not found (Status: ${response.StopAttributes.CurrentStatus})")
                 )

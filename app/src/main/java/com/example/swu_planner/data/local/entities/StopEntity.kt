@@ -2,9 +2,9 @@ package com.example.swu_planner.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.swu_planner.data.model.CoordinatesDto
-import com.example.swu_planner.data.model.StopDto
-import com.example.swu_planner.data.model.StopPointDto
+import com.example.swu_planner.data.dto.CoordinatesDto
+import com.example.swu_planner.data.dto.StopDto
+import com.example.swu_planner.data.dto.StopPointDto
 
 @Entity(tableName = "stops")
 data class StopEntity(

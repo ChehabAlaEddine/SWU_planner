@@ -2,16 +2,18 @@ package com.example.swu_planner.data.repository
 
 import android.util.Log
 import com.example.swu_planner.data.api.SwuMobilityApi
+import com.example.swu_planner.data.dto.VehiclePassageResponse
+import com.example.swu_planner.data.dto.VehicleTripResponse
+import com.example.swu_planner.data.mapper.toDomain
 import com.example.swu_planner.data.model.Trip
 import com.example.swu_planner.data.model.VehiclePassage
-import com.example.swu_planner.data.model.mapper.toDomain
 import javax.inject.Inject
 
 class VehicleRepository @Inject constructor(private val api: SwuMobilityApi) {
     suspend fun getActiveTrips(): Result<List<Trip>> {
         return try {
-            val response = api.getAllTrips()
-            if (response.VehicleTrip.CurrentStatus?.lowercase() != "ok") {
+            val response: VehicleTripResponse = api.getAllTrips()
+            if (response.VehicleTrip.CurrentStatus.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Failed to fetch vehicle trips (Status: ${response.VehicleTrip.CurrentStatus})")
                 )
@@ -27,8 +29,8 @@ class VehicleRepository @Inject constructor(private val api: SwuMobilityApi) {
 
     suspend fun getVehiclePassage(vehicleNumber: String): Result<List<VehiclePassage>> {
         return try {
-            val response = api.getVehiclePassage(vehicleNumber)
-            if (response.VehiclePassage.State?.lowercase() != "ok") {
+            val response: VehiclePassageResponse = api.getVehiclePassage(vehicleNumber)
+            if (response.VehiclePassage.State.lowercase() != "ok") {
                 return Result.failure(
                     Exception("Failed to fetch vehicle passage (Status: ${response.VehiclePassage.State})")
                 )

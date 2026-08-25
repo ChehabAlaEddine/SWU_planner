@@ -1,8 +1,8 @@
 package com.example.swu_planner.data.local
 
 import androidx.room.TypeConverter
-import com.example.swu_planner.data.model.CoordinatesDto
-import com.example.swu_planner.data.model.StopPointDto
+import com.example.swu_planner.data.dto.CoordinatesDto
+import com.example.swu_planner.data.dto.StopPointDto
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

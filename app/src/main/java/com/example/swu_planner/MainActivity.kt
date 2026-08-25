@@ -25,13 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.swu_planner.composables.DeparturesScreen
-import com.example.swu_planner.composables.MapScreen
-import com.example.swu_planner.composables.StopsScreen
-import com.example.swu_planner.ui.theme.SWU_plannerTheme
-import com.example.swu_planner.ui.departures.DeparturesViewModel
-import com.example.swu_planner.ui.stops.StopsViewModel
-import com.example.swu_planner.ui.vehicles.VehicleViewModel
+import com.example.swu_planner.core.theme.SWU_plannerTheme
+import com.example.swu_planner.features.departures.DeparturesScreen
+import com.example.swu_planner.features.departures.DeparturesViewModel
+import com.example.swu_planner.features.map.MapScreen
+import com.example.swu_planner.features.map.VehicleViewModel
+import com.example.swu_planner.features.stops.StopsScreen
+import com.example.swu_planner.features.stops.StopsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

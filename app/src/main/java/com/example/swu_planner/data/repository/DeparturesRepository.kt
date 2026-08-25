@@ -2,6 +2,7 @@ package com.example.swu_planner.data.repository
 
 import android.util.Log
 import com.example.swu_planner.data.api.SwuMobilityApi
+import com.example.swu_planner.data.dto.DeparturesResponse
 import com.example.swu_planner.data.model.Departure
 import javax.inject.Inject
 
@@ -12,7 +13,7 @@ class DeparturesRepository @Inject constructor(private val api: SwuMobilityApi) 
         limit: Int = 10
     ): Result<List<Departure>> {
         return try {
-            val response = api.getStopDepartures(stopNumber, limit)
+            val response: DeparturesResponse = api.getStopDepartures(stopNumber, limit)
 
             // Check if stop was found
             if (response.StopPassage.State.lowercase() != "ok") {
