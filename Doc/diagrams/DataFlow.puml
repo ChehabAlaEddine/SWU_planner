@@ -1,0 +1,25 @@
+@startuml
+actor User
+participant "MapScreen" as UI
+participant "StopsViewModel" as VM
+participant "StopsRepository" as Repo
+database "Room Database" as DB
+participant "SWU API" as API
+
+User -> UI : Open Map
+UI -> VM : loadAllStops()
+VM -> Repo : getAllStops()
+Repo -> DB : getAllStops() (check local)
+
+alt Data exists in Local DB
+    DB -> Repo : return Cached Stops
+else Cache is Empty
+    Repo -> API : fetch stops (Extended scope)
+    API -> Repo : return Stop DTOs
+    Repo -> DB : insertAll(Stops)
+end
+
+Repo -> VM : Result.Success(Stops)
+VM -> UI : uiState = Success
+UI -> User : Display Map Markers
+@enduml

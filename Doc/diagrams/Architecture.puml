@@ -1,0 +1,32 @@
+@startuml
+!pragma layout smetana
+package "UI Layer (Compose)" {
+    [Screens]
+    [Sub-Composables]
+}
+
+package "ViewModel Layer" {
+    [ViewModels]
+}
+
+package "Data Layer" {
+    [Repositories]
+    [Mappers]
+    [DTOs (Network)]
+    [DAO / Entities (Local)]
+}
+
+package "Infrastructure" {
+    [Hilt Modules]
+    [API Client]
+    [Database]
+}
+
+[Screens] --> [ViewModels] : uses
+[ViewModels] --> [Repositories] : calls
+[Repositories] --> [Mappers] : uses
+[Repositories] --> [API Client] : fetches
+[Repositories] --> [Database] : queries/saves
+[Hilt Modules] ..> [Repositories] : provides
+[Hilt Modules] ..> [ViewModels] : provides
+@enduml

@@ -61,5 +61,17 @@ The project follows a **Feature-Based Architecture** for high maintainability an
 4. **Run**:
    - Deploy the app to an emulator or a physical device running Android 7.0 (API 24) or higher.
 
+## 📝 Documentation & Diagrams
+
+The project includes technical documentation in the `Doc/` directory.
+
+### Prerequisites for Diagrams
+To view the PlantUML diagrams within Android Studio, you must have **Graphviz** installed on your system:
+- **Windows**: `choco install graphviz` or download from [graphviz.org](https://graphviz.org/download/).
+- **macOS**: `brew install graphviz`.
+- **Linux**: `sudo apt install graphviz`.
+
+After installation, ensure the **PlantUML integration** plugin is installed in Android Studio.
+
 ---
 *Developed for the Ulm community to make public transport more accessible.*

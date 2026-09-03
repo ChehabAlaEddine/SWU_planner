@@ -1,0 +1,16 @@
+@startuml
+actor User
+participant "DeparturePopup" as UI
+participant "DeparturesViewModel" as VM
+participant "DeparturesRepository" as Repo
+participant "SWU API" as API
+
+User -> UI : Click Stop Marker
+UI -> VM : loadDepartures(stopNumber)
+VM -> Repo : getDepartures(stopNumber)
+Repo -> API : GET stop/passage/Departures
+API -> Repo : return DeparturesResponse
+Repo -> VM : Result.Success(List<Departure>)
+VM -> UI : emit uiState = Success
+UI -> User : Show departure list in BottomSheet
+@enduml

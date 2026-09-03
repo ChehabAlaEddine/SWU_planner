@@ -1,0 +1,89 @@
+@startuml
+!pragma layout smetana
+
+package "features" {
+    class MainActivity {
+        +MainScreen()
+    }
+
+    package "stops" {
+        class StopsViewModel {
+            +uiState: StateFlow<StopsUiState>
+            +loadAllStops()
+            +loadStop(stopNumber: String)
+            +showAllStops()
+        }
+    }
+
+    package "departures" {
+        class DeparturesViewModel {
+            +uiState: StateFlow<DeparturesUiState>
+            +loadDepartures(stopNumber: String)
+        }
+    }
+
+    package "map" {
+        class VehicleViewModel {
+            +uiState: StateFlow<VehicleUiState>
+            +passageUiState: StateFlow<VehiclePassageUiState>
+            +loadActiveTrips()
+            +loadVehiclePassage(vehicleNumber: String)
+            +clearPassage()
+        }
+    }
+}
+
+package "data" {
+    package "repository" {
+        class StopsRepository {
+            -api: SwuMobilityApi
+            -dao: StopDao
+            +getAllStops(): Result<List<StopDto>>
+            +getStop(stopNumber: String): Result<StopDto>
+        }
+
+        class DeparturesRepository {
+            -api: SwuMobilityApi
+            +getDepartures(stopNumber: String, limit: Int): Result<List<Departure>>
+        }
+
+        class VehicleRepository {
+            -api: SwuMobilityApi
+            +getActiveTrips(): Result<List<Trip>>
+            +getVehiclePassage(vehicleNumber: String): Result<List<VehiclePassage>>
+        }
+    }
+
+    package "local" {
+        interface StopDao {
+            +getAllStops(): List<StopEntity>
+            +insertAll(stops: List<StopEntity>)
+            +clearAll()
+        }
+    }
+
+    package "api" {
+        interface SwuMobilityApi {
+            +getStopDepartures(stopNumber: String, limit: Int): DeparturesResponse
+            +getAllStops(): StopBaseDataResponse<List<StopDto>>
+            +getStop(stopNumber: String): StopBaseDataResponse<StopDto>
+            +getAllTrips(): VehicleTripResponse
+            +getVehiclePassage(vehicleNumber: String, range: String): VehiclePassageResponse
+        }
+    }
+}
+
+MainActivity --> StopsViewModel : hiltViewModel()
+MainActivity --> DeparturesViewModel : hiltViewModel()
+MainActivity --> VehicleViewModel : hiltViewModel()
+
+StopsViewModel --> StopsRepository : injected
+DeparturesViewModel --> DeparturesRepository : injected
+VehicleViewModel --> VehicleRepository : injected
+
+StopsRepository --> StopDao : uses
+StopsRepository --> SwuMobilityApi : uses
+DeparturesRepository --> SwuMobilityApi : uses
+VehicleRepository --> SwuMobilityApi : uses
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+actor User
+participant "MapScreen" as UI
+participant "VehicleViewModel" as VM
+participant "VehicleRepository" as Repo
+participant "SWU API" as API
+
+User -> UI : Open Map
+UI -> VM : loadActiveTrips()
+
+loop Every 15 seconds (Foreground only)
+    VM -> Repo : getActiveTrips()
+    Repo -> API : GET vehicle/trip/Trip
+    API -> Repo : return VehicleTripResponse
+    Repo -> VM : Result.Success(List<Trip>)
+    VM -> UI : emit vehicleUiState = Success
+    UI -> User : Update vehicle icons on Map
+end
+@enduml
