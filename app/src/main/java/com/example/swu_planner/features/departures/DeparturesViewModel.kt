@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the departures feature.
+ *
+ * Handles fetching and exposing departure data for a specific stop.
+ */
 @HiltViewModel
 class DeparturesViewModel @Inject constructor(
     private val repository: DeparturesRepository
@@ -20,6 +25,11 @@ class DeparturesViewModel @Inject constructor(
     )
     val uiState: StateFlow<DeparturesUiState> = _uiState
 
+    /**
+     * Loads departures for a given stop number.
+     *
+     * @param stopNumber The identifier for the stop.
+     */
     fun loadDepartures(stopNumber: String) {
         viewModelScope.launch {
             _uiState.value = DeparturesUiState.Loading

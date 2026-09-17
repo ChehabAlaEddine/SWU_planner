@@ -6,6 +6,9 @@ import com.example.swu_planner.data.dto.CoordinatesDto
 import com.example.swu_planner.data.dto.StopDto
 import com.example.swu_planner.data.dto.StopPointDto
 
+/**
+ * Database entity representing a public transport stop.
+ */
 @Entity(tableName = "stops")
 data class StopEntity(
     @PrimaryKey
@@ -17,6 +20,9 @@ data class StopEntity(
     val stopPoints: List<StopPointDto>
 )
 
+/**
+ * Extension function to map a [StopDto] to a [StopEntity].
+ */
 fun StopDto.toEntity() = StopEntity(
     stopNumber = StopNumber,
     stopCode = StopCode,
@@ -26,6 +32,9 @@ fun StopDto.toEntity() = StopEntity(
     stopPoints = StopPoints
 )
 
+/**
+ * Extension function to map a [StopEntity] back to a [StopDto].
+ */
 fun StopEntity.toDto() = StopDto(
     StopNumber = stopNumber,
     StopCode = stopCode,

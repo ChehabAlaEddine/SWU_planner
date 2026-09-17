@@ -3,6 +3,9 @@ package com.example.swu_planner.data.mapper
 import com.example.swu_planner.data.dto.TripDto
 import com.example.swu_planner.data.model.Trip
 
+/**
+ * Extension function to map a [TripDto] to a domain [Trip] model.
+ */
 fun TripDto.toDomain() = Trip(
     vehicleNumber = VehicleNumber,
     vehicleCategory = VehicleCategory,

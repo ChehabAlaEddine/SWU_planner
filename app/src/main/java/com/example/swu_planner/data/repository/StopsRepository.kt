@@ -9,11 +9,16 @@ import com.example.swu_planner.data.local.entities.toDto
 import com.example.swu_planner.data.local.entities.toEntity
 import javax.inject.Inject
 
-
+/**
+ * Repository for fetching and caching public transport stops.
+ */
 class StopsRepository @Inject constructor(
     private val api: SwuMobilityApi,
     private val stopDao: StopDao
 ) {
+    /**
+     * Fetches all stops, prioritizing local cache. If cache is empty, fetches from API and caches results.
+     */
     suspend fun getAllStops(): Result<List<StopDto>> {
         return try {
             // 1. Try to get from local cache
@@ -42,6 +47,9 @@ class StopsRepository @Inject constructor(
         }
     }
 
+    /**
+     * Fetches details for a single stop from the API.
+     */
     suspend fun getStop(stopNumber: String): Result<StopDto> {
         return try {
             val response: StopBaseDataResponse<StopDto> = api.getStop(stopNumber)

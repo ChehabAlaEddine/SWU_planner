@@ -20,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Composable representing an error state with an icon and a message.
+ */
 @Composable
 fun ErrorState(message: String) {
     Log.e("CommonStates", "Error: $message")
@@ -46,6 +49,9 @@ fun ErrorState(message: String) {
     }
 }
 
+/**
+ * Composable representing an empty state with an icon and a message.
+ */
 @Composable
 fun EmptyState(message: String) {
     Box(

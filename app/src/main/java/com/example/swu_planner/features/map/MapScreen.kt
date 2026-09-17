@@ -8,6 +8,8 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -56,21 +58,35 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+/**
+ * The main map screen of the application.
+ *
+ * Displays stops and active vehicle trips on a Google Map.
+ * Provides functionality to view departures for a stop and passage details for a vehicle.
+ *
+ * @param stopsViewModel ViewModel for stop data.
+ * @param departuresViewModel ViewModel for departure data.
+ * @param vehicleViewModel ViewModel for vehicle trip data.
+ * @param contentPadding Padding values from the Scaffold to handle system bars.
+ */
 @SuppressLint("MissingPermission")
-@OptIn(ExperimentalMaterial3Api::class, com.google.maps.android.compose.MapsComposeExperimentalApi::class)
+@OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
 fun MapScreen(
     stopsViewModel: StopsViewModel,
     departuresViewModel: DeparturesViewModel,
-    vehicleViewModel: VehicleViewModel
+    vehicleViewModel: VehicleViewModel,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by stopsViewModel.uiState.collectAsState()
     val vehicleUiState by vehicleViewModel.uiState.collectAsState()
@@ -158,7 +174,7 @@ fun MapScreen(
                 if (!showStopBottomSheet && !showVehicleBottomSheet) {
                     vehicleViewModel.loadActiveTrips()
                 }
-                kotlinx.coroutines.delay(15000)
+                delay(15000)
             }
         }
     }
@@ -176,8 +192,10 @@ fun MapScreen(
                 isMyLocationEnabled = isLocationPermissionGranted
             ),
             uiSettings = MapUiSettings(
-                myLocationButtonEnabled = false // We use our custom FAB
-            )
+                myLocationButtonEnabled = false, // We use our custom FAB
+                zoomControlsEnabled = true
+            ),
+            contentPadding = contentPadding
         ) {
             allStops.forEach { stop ->
                 Marker(
@@ -234,6 +252,8 @@ fun MapScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomStart)
+                    .padding(contentPadding)
+                    .consumeWindowInsets(contentPadding)
                     .padding(start=16.dp, bottom=32.dp),
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -267,6 +287,9 @@ fun MapScreen(
     }
 }
 
+/**
+ * A preview composable for the [MapScreen].
+ */
 @Preview(showBackground = true)
 @Composable
 fun MapScreenPreview() {

@@ -6,6 +6,9 @@ import com.example.swu_planner.data.model.Platform
 import com.example.swu_planner.data.model.Route
 import com.example.swu_planner.data.model.Stop
 
+/**
+ * Extension function to map a [StopDto] to a domain [Stop] model.
+ */
 fun StopDto.toDomain() = Stop(
     number = StopNumber,
     name = StopName,
@@ -14,6 +17,9 @@ fun StopDto.toDomain() = Stop(
     platforms = StopPoints.map { it.toDomain() }
 )
 
+/**
+ * Extension function to map a [StopPointDto] to a domain [Platform] model.
+ */
 fun StopPointDto.toDomain() = Platform(
     code = StopPointCode,
     platformName = PlatformName,

@@ -9,7 +9,13 @@ import com.example.swu_planner.data.model.Trip
 import com.example.swu_planner.data.model.VehiclePassage
 import javax.inject.Inject
 
+/**
+ * Repository for fetching real-time vehicle trip and passage data.
+ */
 class VehicleRepository @Inject constructor(private val api: SwuMobilityApi) {
+    /**
+     * Fetches all currently active vehicle trips.
+     */
     suspend fun getActiveTrips(): Result<List<Trip>> {
         return try {
             val response: VehicleTripResponse = api.getAllTrips()
@@ -27,6 +33,9 @@ class VehicleRepository @Inject constructor(private val api: SwuMobilityApi) {
         }
     }
 
+    /**
+     * Fetches the stop sequence for a specific vehicle.
+     */
     suspend fun getVehiclePassage(vehicleNumber: String): Result<List<VehiclePassage>> {
         return try {
             val response: VehiclePassageResponse = api.getVehiclePassage(vehicleNumber)

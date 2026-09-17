@@ -40,6 +40,14 @@ import com.example.swu_planner.data.model.Stop
 import com.example.swu_planner.features.common.EmptyState
 import com.example.swu_planner.features.common.ErrorState
 
+/**
+ * A bottom sheet popup that displays departures for a selected stop.
+ *
+ * @param selectedStop The stop for which to show departures.
+ * @param departuresViewModel The ViewModel providing departure data.
+ * @param sheetState The state of the bottom sheet.
+ * @param onDismissRequest Callback invoked when the sheet is dismissed.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeparturePopup(

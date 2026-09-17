@@ -36,7 +36,16 @@ import com.example.swu_planner.data.model.Trip
 import com.example.swu_planner.data.model.VehiclePassage
 import com.example.swu_planner.features.common.ErrorState
 import com.example.swu_planner.features.departures.RouteBadge
+import kotlin.math.abs
 
+/**
+ * A bottom sheet popup that displays the stop sequence for a selected vehicle trip.
+ *
+ * @param trip The vehicle trip to show passage for.
+ * @param viewModel The ViewModel providing passage data.
+ * @param sheetState The state of the bottom sheet.
+ * @param onDismissRequest Callback invoked when the sheet is dismissed.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VehiclePassagePopup(
@@ -94,6 +103,9 @@ fun VehiclePassagePopup(
     }
 }
 
+/**
+ * A list of stops in a vehicle's passage.
+ */
 @Composable
 fun VehiclePassageList(passages: List<VehiclePassage>) {
     LazyColumn {
@@ -103,6 +115,9 @@ fun VehiclePassageList(passages: List<VehiclePassage>) {
     }
 }
 
+/**
+ * An item representing a single stop in the vehicle passage list.
+ */
 @Composable
 fun VehiclePassageItem(passage: VehiclePassage) {
     Row(
@@ -125,7 +140,7 @@ fun VehiclePassageItem(passage: VehiclePassage) {
                 fontWeight = FontWeight.SemiBold
             )
         }
-        val isDelayedOrEarly = passage.deviation != null && kotlin.math.abs(passage.deviation) > 120
+        val isDelayedOrEarly = passage.deviation != null && abs(passage.deviation) > 120
         val actualTime = passage.arrivalTimeActual ?: passage.departureTimeActual ?: ""
         val scheduledTime = passage.arrivalTimeScheduled ?: passage.departureTimeScheduled ?: ""
 

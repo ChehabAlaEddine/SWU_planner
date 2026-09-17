@@ -33,6 +33,17 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+/**
+ * The main theme composable for the SWU Planner application.
+ *
+ * It configures the Material 3 color scheme, typography, and content.
+ * Supports dynamic color on Android 12+ and automatically switches between
+ * light and dark modes based on system settings.
+ *
+ * @param darkTheme Whether to use the dark color scheme.
+ * @param dynamicColor Whether to use dynamic color schemes (Android 12+).
+ * @param content The composable content to be themed.
+ */
 @Composable
 fun SWU_plannerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

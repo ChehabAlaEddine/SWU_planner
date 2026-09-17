@@ -2,6 +2,9 @@ package com.example.swu_planner.features.stops
 
 import com.example.swu_planner.data.model.Stop
 
+/**
+ * Sealed class representing the UI states for the stops feature.
+ */
 sealed class StopsUiState {
     data object Idle : StopsUiState()
     data object Loading : StopsUiState()

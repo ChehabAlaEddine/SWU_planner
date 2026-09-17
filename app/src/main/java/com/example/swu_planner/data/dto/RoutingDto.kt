@@ -1,34 +1,58 @@
 package com.example.swu_planner.data.dto
 
+import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 
-data class JourneysResponse(
-    val journeys: List<JourneyDto>?
+/**
+ * Root Data Transfer Object for EFA journey search responses.
+ */
+data class EfaJourneysResponse(
+    @SerializedName("trips") val trips: JsonElement? // Handle polymorphism at the 'trips' level
 )
 
-data class JourneyDto(
-    val legs: List<LegDto>?,
-    val refreshToken: String?
+/**
+ * DTO representing a single trip option between two locations.
+ */
+data class EfaTripDto(
+    val duration: String?,
+    val interchange: String?,
+    val legs: List<EfaLegDto>?
 )
 
-data class LegDto(
-    val origin: LocationDto?,
-    val destination: LocationDto?,
-    val departure: String?, // ISO 8601
-    val arrival: String?,   // ISO 8601
-    val line: LineDto?,
-    val direction: String?
+/**
+ * DTO representing a leg of a trip (a single vehicle ride or walk).
+ */
+data class EfaLegDto(
+    val points: List<EfaPointDto>?,
+    val mode: EfaModeDto?
 )
 
-data class LocationDto(
-    val id: String?,
+/**
+ * DTO representing a point in a trip leg (e.g., departure or arrival stop).
+ */
+data class EfaPointDto(
     val name: String?,
-    val location: CoordinatesDto?
+    val usage: String?, // departure, arrival
+    val dateTime: EfaDateTimeDto?
 )
 
-data class LineDto(
-    val id: String?,
+/**
+ * DTO representing date and time information, including real-time updates.
+ */
+data class EfaDateTimeDto(
+    val date: String?,
+    val time: String?,
+    val rtDate: String?,
+    val rtTime: String?
+)
+
+/**
+ * DTO representing the mode of transport for a trip leg.
+ */
+data class EfaModeDto(
     val name: String?,
-    val mode: String?, // bus, tram, etc.
-    val product: String?
+    val number: String?,
+    val symbol: String?,
+    val type: String?,
+    val destination: String?
 )

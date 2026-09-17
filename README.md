@@ -9,6 +9,15 @@ SWU Planner is a modern Android application designed to help users navigate publ
   - Track real-time vehicle positions and routes.
   - "My Location" feature to quickly center the map on your current position.
   - Interactive markers that show departure boards or vehicle passage details.
+  - **Integrated Routing**: Click any stop to see departures or plan a trip from your current location.
+- **Trip Planner (Routing)**:
+  - Advanced journey planning using the DING EFA system.
+  - Polymorphic response handling for complex trip data.
+  - High-fidelity journey details with walking paths and transit legs.
+- **Saved Addresses**:
+  - Quickly plan trips to frequent destinations (Home, Work, Gym, etc.).
+  - Custom naming and icon selection for personal locations.
+  - One-tap routing from current GPS coordinates to any saved address.
 - **Stop Directory**:
   - Search and browse a comprehensive list of public transport stops.
   - Detailed view for each stop, including platform information and servicing lines.
@@ -44,6 +53,7 @@ The project follows a **Feature-Based Architecture** for high maintainability an
   - `map/`: Real-time map tracking and location logic.
   - `stops/`: Stop listing and detail views.
   - `departures/`: Departure searching and schedules.
+  - `routing/`: Trip planning, saved addresses, and journey visualization.
   - `common/`: Reusable UI components (Error/Empty states).
 
 ## ⚙️ Setup & Installation

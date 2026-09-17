@@ -1,9 +1,15 @@
 package com.example.swu_planner.data.dto
 
+/**
+ * Data Transfer Object for the vehicle passage response, showing stops a vehicle will visit.
+ */
 data class VehiclePassageResponse(
     val VehiclePassage: VehiclePassageData
 )
 
+/**
+ * Container for detailed vehicle passage data.
+ */
 data class VehiclePassageData(
     val ServiceCategory: String,
     val UpdateInterval: String,
@@ -19,6 +25,9 @@ data class VehiclePassageData(
     val PassageData: List<PassageDto>?
 )
 
+/**
+ * DTO representing a stop in a vehicle's passage, including schedule and real-time data.
+ */
 data class PassageDto(
     val StopNumber: Int,
     val StopCode: String,

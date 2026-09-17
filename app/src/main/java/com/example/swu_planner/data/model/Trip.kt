@@ -1,5 +1,8 @@
 package com.example.swu_planner.data.model
 
+/**
+ * Domain model representing an active vehicle trip and its current status.
+ */
 data class Trip(
     val vehicleNumber: Int,
     val vehicleCategory: Int,

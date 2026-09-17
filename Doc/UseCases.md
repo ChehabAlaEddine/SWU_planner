@@ -11,6 +11,8 @@ This document details the user-facing functionality of the SWU Planner applicati
 | UC-03 | Departure Board | Medium | Detailed schedule for a specific stop with real-time delay tracking. |
 | UC-04 | User Location | Medium | Centering the map on the user's current GPS coordinates. |
 | UC-05 | Offline Access | Medium | Ability to see previously loaded stop information without internet. |
+| UC-06 | Trip Planning | High | Searching for journeys between two points with detailed leg breakdowns. |
+| UC-07 | Saved Addresses | High | Managing personal locations (Home/Work) for instant "from current location" routing. |
 
 ## 2. Detailed Data Flows
 

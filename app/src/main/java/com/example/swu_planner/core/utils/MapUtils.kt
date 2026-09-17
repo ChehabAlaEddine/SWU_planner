@@ -12,6 +12,13 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
+/**
+ * Converts a vector resource into a [BitmapDescriptor] for use as a map marker.
+ *
+ * @param context The application context.
+ * @param vectorResId The resource ID of the vector drawable.
+ * @return A [BitmapDescriptor] if successful, or null otherwise.
+ */
 fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
     val vectorDrawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
     vectorDrawable.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
@@ -25,6 +32,16 @@ fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescri
     return BitmapDescriptorFactory.fromBitmap(bitmap)
 }
 
+/**
+ * Creates a custom [BitmapDescriptor] for a vehicle icon based on the route name.
+ *
+ * The icon includes a background shape (circle for bus, rounded square for tram)
+ * colored according to the route, with the route name text centered inside.
+ *
+ * @param context The application context.
+ * @param routeName The name of the route (e.g., "1", "6").
+ * @return A [BitmapDescriptor] representing the vehicle icon.
+ */
 fun createVehicleIcon(context: Context, routeName: String): BitmapDescriptor {
     val size = (30 * context.resources.displayMetrics.density).toInt()
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)

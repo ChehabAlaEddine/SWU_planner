@@ -1,5 +1,8 @@
 package com.example.swu_planner.data.model
 
+/**
+ * Domain model representing a stop in a specific vehicle's current trip.
+ */
 data class VehiclePassage(
     val stopNumber: Int,
     val stopName: String,

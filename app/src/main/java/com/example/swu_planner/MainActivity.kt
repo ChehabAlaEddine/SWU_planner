@@ -30,10 +30,17 @@ import com.example.swu_planner.features.departures.DeparturesScreen
 import com.example.swu_planner.features.departures.DeparturesViewModel
 import com.example.swu_planner.features.map.MapScreen
 import com.example.swu_planner.features.map.VehicleViewModel
-import com.example.swu_planner.features.stops.StopsScreen
+import com.example.swu_planner.features.routing.RoutingScreen
+import com.example.swu_planner.features.routing.RoutingViewModel
 import com.example.swu_planner.features.stops.StopsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * The main activity of the SWU Planner application.
+ *
+ * This activity serves as the entry point for the UI and manages the main navigation
+ * between different screens (Map, Departures, Routing).
+ */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,12 +55,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * The root composable for the main screen of the application.
+ *
+ * It sets up the [Scaffold] with a [NavigationBar] and handles the navigation logic
+ * between the map, departures, and routing screens.
+ */
 @Composable
 fun MainScreen() {
     var currentScreen by remember { mutableStateOf("map") }
 
     // Use Hilt to provide ViewModels
     val departuresViewModel: DeparturesViewModel = hiltViewModel()
+    val routingViewModel: RoutingViewModel = hiltViewModel()
     val stopsViewModel: StopsViewModel = hiltViewModel()
     val vehicleViewModel: VehicleViewModel = hiltViewModel()
 
@@ -68,10 +82,10 @@ fun MainScreen() {
                     label = { Text("Departures") }
                 )
                 NavigationBarItem(
-                    selected = currentScreen == "stops",
-                    onClick = { currentScreen = "stops" },
-                    icon = { Icon(Icons.Default.Place, contentDescription = "Stops") },
-                    label = { Text("Stops") }
+                    selected = currentScreen == "routing",
+                    onClick = { currentScreen = "routing" },
+                    icon = { Icon(Icons.Default.Place, contentDescription = "Routing") },
+                    label = { Text("Routing") }
                 )
                 NavigationBarItem(
                     selected = currentScreen == "map",
@@ -82,20 +96,31 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        // We pass innerPadding to screens so they can handle insets specifically
+        Box(modifier = Modifier.fillMaxSize()) {
             when (currentScreen) {
-                "departures" -> DeparturesScreen(viewModel = departuresViewModel)
-                "stops" -> StopsScreen(viewModel = stopsViewModel)
+                "departures" -> DeparturesScreen(
+                    viewModel = departuresViewModel,
+                    contentPadding = innerPadding
+                )
+                "routing" -> RoutingScreen(
+                    viewModel = routingViewModel,
+                    contentPadding = innerPadding
+                )
                 "map" -> MapScreen(
                     stopsViewModel = stopsViewModel,
                     departuresViewModel = departuresViewModel,
-                    vehicleViewModel = vehicleViewModel
+                    vehicleViewModel = vehicleViewModel,
+                    contentPadding = innerPadding
                 )
             }
         }
     }
 }
 
+/**
+ * A preview composable for the [MainScreen].
+ */
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {

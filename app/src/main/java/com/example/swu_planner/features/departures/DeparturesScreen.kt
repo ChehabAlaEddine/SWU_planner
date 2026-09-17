@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,9 +30,16 @@ import androidx.compose.ui.unit.dp
 import com.example.swu_planner.features.common.EmptyState
 import com.example.swu_planner.features.common.ErrorState
 
+/**
+ * Screen that allows users to search for departures by stop number.
+ *
+ * @param viewModel The ViewModel providing departure data.
+ * @param contentPadding Padding values from the Scaffold to handle system bars.
+ */
 @Composable
 fun DeparturesScreen(
-    viewModel: DeparturesViewModel
+    viewModel: DeparturesViewModel,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var stopNumber by remember { mutableStateOf("1010") }
@@ -37,9 +47,10 @@ fun DeparturesScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(contentPadding)
+            .consumeWindowInsets(contentPadding)
             .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(50.dp))
         SearchBar(
             stopNumber = stopNumber,
             onStopNumberChange = { stopNumber = it },
@@ -68,6 +79,9 @@ fun DeparturesScreen(
     }
 }
 
+/**
+ * A search bar for inputting stop numbers.
+ */
 @Composable
 fun SearchBar(
     stopNumber: String,
@@ -96,6 +110,9 @@ fun SearchBar(
     }
 }
 
+/**
+ * Composable shown when the screen is in an idle state.
+ */
 @Composable
 fun IdleState() {
     Box(

@@ -2,10 +2,16 @@ package com.example.swu_planner.data.dto
 
 import com.example.swu_planner.data.model.Departure
 
+/**
+ * Data Transfer Object for the SWU stop departures response.
+ */
 data class DeparturesResponse(
     val StopPassage: StopPassageData
 )
 
+/**
+ * Detailed stop passage data containing metadata and a list of departures.
+ */
 data class StopPassageData(
     val ServiceCategory: String,           // "Departures"
     val UpdateInterval: String,            // "15 seconds"

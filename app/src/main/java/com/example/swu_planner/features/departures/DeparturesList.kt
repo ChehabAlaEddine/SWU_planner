@@ -25,7 +25,11 @@ import com.example.swu_planner.core.utils.formatTime
 import com.example.swu_planner.core.utils.getRouteColor
 import com.example.swu_planner.core.utils.getRouteShape
 import com.example.swu_planner.data.model.Departure
+import kotlin.math.abs
 
+/**
+ * A scrollable list of departures.
+ */
 @Composable
 fun DeparturesList(departures: List<Departure>) {
     Log.d("DeparturesList", "Departures: $departures")
@@ -36,6 +40,9 @@ fun DeparturesList(departures: List<Departure>) {
     }
 }
 
+/**
+ * An item representing a single departure in the list.
+ */
 @Composable
 fun DepartureItem(departure: Departure) {
 
@@ -80,8 +87,8 @@ fun DepartureItem(departure: Departure) {
                     modifier = Modifier.width(50.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    if (kotlin.math.abs(departure.DepartureDeviation) > 60) {
-                        val minutes = kotlin.math.abs(departure.DepartureDeviation) / 60
+                    if (abs(departure.DepartureDeviation) > 60) {
+                        val minutes = abs(departure.DepartureDeviation) / 60
                         val (text, color) = if (departure.DepartureDeviation > 0) {
                             "+$minutes min" to Color.Red
                         } else {
@@ -110,7 +117,9 @@ fun DepartureItem(departure: Departure) {
     }
 
 
-
+/**
+ * A colored badge showing the route name.
+ */
 @Composable
 fun RouteBadge(routeName: String) {
     val backgroundColor = getRouteColor(routeName)

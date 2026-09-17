@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for managing vehicle trips and passage data on the map.
+ */
 @HiltViewModel
 class VehicleViewModel @Inject constructor(private val repository: VehicleRepository) : ViewModel() {
 
@@ -18,6 +21,9 @@ class VehicleViewModel @Inject constructor(private val repository: VehicleReposi
     private val _passageUiState = MutableStateFlow<VehiclePassageUiState>(VehiclePassageUiState.Idle)
     val passageUiState: StateFlow<VehiclePassageUiState> = _passageUiState
 
+    /**
+     * Fetches all currently active vehicle trips.
+     */
     fun loadActiveTrips() {
         viewModelScope.launch {
             _uiState.value = VehicleUiState.Loading
@@ -33,6 +39,11 @@ class VehicleViewModel @Inject constructor(private val repository: VehicleReposi
         }
     }
 
+    /**
+     * Fetches passage details for a specific vehicle.
+     *
+     * @param vehicleNumber The unique identifier for the vehicle.
+     */
     fun loadVehiclePassage(vehicleNumber: String) {
         viewModelScope.launch {
             _passageUiState.value = VehiclePassageUiState.Loading
@@ -48,6 +59,9 @@ class VehicleViewModel @Inject constructor(private val repository: VehicleReposi
         }
     }
     
+    /**
+     * Resets the passage UI state to Idle.
+     */
     fun clearPassage() {
         _passageUiState.value = VehiclePassageUiState.Idle
     }

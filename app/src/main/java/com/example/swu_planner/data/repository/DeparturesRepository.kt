@@ -6,8 +6,18 @@ import com.example.swu_planner.data.dto.DeparturesResponse
 import com.example.swu_planner.data.model.Departure
 import javax.inject.Inject
 
+/**
+ * Repository for fetching vehicle departures from a specific stop.
+ */
 class DeparturesRepository @Inject constructor(private val api: SwuMobilityApi) {
 
+    /**
+     * Fetches departures for the given stop number.
+     *
+     * @param stopNumber The identifier for the stop.
+     * @param limit The maximum number of departures to fetch.
+     * @return A [Result] containing a list of [Departure]s.
+     */
     suspend fun getDepartures(
         stopNumber: String,
         limit: Int = 10

@@ -18,8 +18,9 @@ The application is built using a feature-based organization combined with the MV
 [View Architecture Diagram](file:///home/alch273107/AndroidStudioProjects/SWU_planner/Doc/diagrams/Architecture.puml)
 
 ## 4. Data Strategy
-The application prioritizes local data for bus stops to ensure immediate UI feedback and offline support.
+The application prioritizes local data for bus stops to ensure immediate UI feedback and offline support. It also manages complex polymorphic responses from the routing provider.
 
 - **Cache-First**: The `StopsRepository` always attempts to read from the local Room database first. 
 - **Network Fallback**: If the local database is empty, the repository triggers a network call to the SWU API.
+- **Polymorphic Parsing**: The `RoutingMapper` handles inconsistent JSON structures (Arrays vs. Nested Objects) from the DING EFA system using `JsonElement` and dynamic type token analysis.
 - **Background Sync**: Real-time vehicle positions are fetched periodically (every 15 seconds) but only when the UI is in the foreground (`STARTED` state).

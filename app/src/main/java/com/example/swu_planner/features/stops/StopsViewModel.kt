@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for managing public transport stops.
+ */
 @HiltViewModel
 class StopsViewModel @Inject constructor(
     private val repository: StopsRepository
@@ -22,6 +25,9 @@ class StopsViewModel @Inject constructor(
 
     private var lastLoadedStops: List<Stop> = emptyList()
 
+    /**
+     * Loads all available stops from the repository.
+     */
     fun loadAllStops() {
         viewModelScope.launch {
             _uiState.value = StopsUiState.Loading
@@ -47,6 +53,11 @@ class StopsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Loads details for a specific stop.
+     *
+     * @param stopNumber The identifier for the stop.
+     */
     fun loadStop(stopNumber: String) {
         viewModelScope.launch {
             _uiState.value = StopsUiState.Loading
@@ -66,6 +77,9 @@ class StopsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Shows all previously loaded stops, or loads them if none are available.
+     */
     fun showAllStops() {
         if (lastLoadedStops.isNotEmpty()) {
             _uiState.value = StopsUiState.Success(lastLoadedStops)
