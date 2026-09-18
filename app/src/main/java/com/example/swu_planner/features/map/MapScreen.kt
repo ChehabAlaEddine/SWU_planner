@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.swu_planner.R
 import com.example.swu_planner.core.theme.SWU_plannerTheme
+import com.example.swu_planner.core.utils.MapIconManager
 import com.example.swu_planner.core.utils.bitmapDescriptorFromVector
 import com.example.swu_planner.core.utils.createVehicleIcon
 import com.example.swu_planner.data.model.Stop
@@ -52,7 +53,6 @@ import com.example.swu_planner.features.stops.StopsUiState
 import com.example.swu_planner.features.stops.StopsViewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -118,7 +118,8 @@ fun MapScreen(
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        isLocationPermissionGranted = permissions.values.contains(true)
+        val granted = permissions.values.contains(true)
+        isLocationPermissionGranted = granted
     }
 
     val fusedLocationClient = remember {
@@ -156,9 +157,8 @@ fun MapScreen(
     var selectedTrip by remember { mutableStateOf<Trip?>(null) }
     val vehicleSheetState = rememberModalBottomSheetState()
 
-    val stopIcon = remember(context) {
-        bitmapDescriptorFromVector(context, R.drawable.ic_stop_marker)
-    }
+    // R-01: Stop icon provided by the manager
+    val stopIcon = remember(context) { MapIconManager.getStopIcon(context) }
 
     // Initial load
     LaunchedEffect(Unit) {
@@ -212,15 +212,11 @@ fun MapScreen(
                     )
                 }
 
-                // Show vehicle trips
-                val vehicleIconsCache = remember { mutableMapOf<String, BitmapDescriptor>() }
-
                 displayedTrips.forEach { trip ->
                     if (trip.latitude != null && trip.longitude != null) {
                         val routeName = trip.routeNumber?.rem(100).toString() ?: ""
-                        val icon = vehicleIconsCache.getOrPut(routeName) {
-                            createVehicleIcon(context, routeName)
-                        }
+                        // R-01: Vehicle icon provided by the manager
+                        val icon = MapIconManager.getVehicleIcon(context, routeName)
 
                         Marker(
                             state = MarkerState(position = LatLng(trip.latitude, trip.longitude)),

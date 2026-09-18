@@ -7,8 +7,10 @@ import com.example.swu_planner.data.model.Stop
 import com.example.swu_planner.data.repository.RoutingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,19 +25,37 @@ class RoutingViewModel @Inject constructor(
     private val repository: RoutingRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(RoutingUiState())
-    val uiState: StateFlow<RoutingUiState> = _uiState.asStateFlow()
+    private val _internalState = MutableStateFlow(RoutingUiState())
+    
+    // L-01: Use stateIn with WhileSubscribed to stop DB collection when UI is not visible
+    private val _savedAddresses = repository.getSavedAddressesFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    init {
-        viewModelScope.launch {
-            repository.getSavedAddressesFlow().collect { addresses ->
-                _uiState.update { it.copy(savedAddresses = addresses) }
-            }
-        }
+    val uiState: StateFlow<RoutingUiState> = combine(_internalState, _savedAddresses) { state, addresses ->
+        state.copy(savedAddresses = addresses)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = RoutingUiState()
+    )
+
+    // L-02: Track if location has been requested to avoid redundant logic on config change
+    private var locationRequested = false
+
+    fun onLocationPermissionResult(granted: Boolean) {
+        locationRequested = true
+    }
+
+    fun shouldRequestLocationInitial(): Boolean {
+        return !locationRequested
     }
 
     private fun updateDraft(transform: (AddressDraft) -> AddressDraft) {
-        _uiState.update { it.copy(addressDraft = transform(it.addressDraft)) }
+        _internalState.update { it.copy(addressDraft = transform(it.addressDraft)) }
     }
 
     private fun fetchHints(query: String, update: (List<Stop>) -> Unit) {
@@ -49,7 +69,7 @@ class RoutingViewModel @Inject constructor(
      * Triggers routing from a specific location to a saved address.
      */
     fun routeToSavedAddress(address: SavedAddress, currentLat: Double, currentLon: Double) {
-        _uiState.update {
+        _internalState.update {
             it.copy(
                 fromQuery = "Your location",
                 fromLocation = "$currentLat,$currentLon",
@@ -66,7 +86,7 @@ class RoutingViewModel @Inject constructor(
      * Handles the click on Home or Work buttons.
      */
     fun onSavedAddressActionButtonClicked(type: String) {
-        val saved = _uiState.value.savedAddresses.find { it.type == type }
+        val saved = _savedAddresses.value.find { it.type == type }
         if (saved == null) {
             updateDraft { it.copy(type = type, query = "", hints = emptyList()) }
         }
@@ -113,7 +133,7 @@ class RoutingViewModel @Inject constructor(
      * Saves the selected stop and updates the UI state without dismissing if editing.
      */
     fun onAddressSettingStopSelected(stop: Stop) {
-        val draft = _uiState.value.addressDraft
+        val draft = _internalState.value.addressDraft
         if (draft.editingAddress != null) {
             updateDraft {
                 it.copy(
@@ -152,7 +172,7 @@ class RoutingViewModel @Inject constructor(
      * Saves a new custom address.
      */
     fun saveNewCustomAddress() {
-        val draft = _uiState.value.addressDraft
+        val draft = _internalState.value.addressDraft
         if (draft.query.isBlank()) return
         
         val lat = draft.latitude ?: return
@@ -172,7 +192,7 @@ class RoutingViewModel @Inject constructor(
      * Handles long click on a saved address to open edit UI.
      */
     fun onSavedAddressLongClicked(type: String) {
-        val address = _uiState.value.savedAddresses.find { it.type == type } ?: return
+        val address = _savedAddresses.value.find { it.type == type } ?: return
         updateDraft { 
             it.copy(
                 editingAddress = address, 
@@ -188,7 +208,7 @@ class RoutingViewModel @Inject constructor(
      * Saves the edited address.
      */
     fun saveEditedAddress() {
-        val draft = _uiState.value.addressDraft
+        val draft = _internalState.value.addressDraft
         val currentEditing = draft.editingAddress ?: return
         
         if (draft.query.isBlank()) return
@@ -208,7 +228,7 @@ class RoutingViewModel @Inject constructor(
      * Deletes the address being edited.
      */
     fun deleteEditingAddress() {
-        val draft = _uiState.value.addressDraft
+        val draft = _internalState.value.addressDraft
         val currentEditing = draft.editingAddress ?: return
         viewModelScope.launch {
             repository.deleteAddress(currentEditing.type)
@@ -222,9 +242,9 @@ class RoutingViewModel @Inject constructor(
      * Updates the origin search query and fetches hints.
      */
     fun onFromQueryChanged(query: String) {
-        _uiState.update { it.copy(fromQuery = query, fromLocation = null) }
+        _internalState.update { it.copy(fromQuery = query, fromLocation = null) }
         fetchHints(query) { hints ->
-            _uiState.update { it.copy(fromHints = hints) }
+            _internalState.update { it.copy(fromHints = hints) }
         }
     }
 
@@ -232,9 +252,9 @@ class RoutingViewModel @Inject constructor(
      * Updates the destination search query and fetches hints.
      */
     fun onToQueryChanged(query: String) {
-        _uiState.update { it.copy(toQuery = query, toLocation = null) }
+        _internalState.update { it.copy(toQuery = query, toLocation = null) }
         fetchHints(query) { hints ->
-            _uiState.update { it.copy(toHints = hints) }
+            _internalState.update { it.copy(toHints = hints) }
         }
     }
 
@@ -242,16 +262,16 @@ class RoutingViewModel @Inject constructor(
      * Initiates a search for routes between the selected origin and destination.
      */
     fun findRoutes() {
-        val state = _uiState.value
+        val state = _internalState.value
         val from = state.fromLocation ?: state.fromQuery
         val to = state.toLocation ?: state.toQuery
         if (from.isBlank() || to.isBlank()) return
 
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _internalState.update { it.copy(isLoading = true, error = null) }
             repository.findJourneys(from, to).fold(
                 onSuccess = { journeys ->
-                    _uiState.update { it.copy(journeys = journeys, isLoading = false) }
+                    _internalState.update { it.copy(journeys = journeys, isLoading = false) }
                 },
                 onFailure = { error ->
                     val errorMessage = if (error.message?.contains("503") == true) {
@@ -259,7 +279,7 @@ class RoutingViewModel @Inject constructor(
                     } else {
                         error.message ?: "An unexpected error occurred"
                     }
-                    _uiState.update { it.copy(error = errorMessage, isLoading = false) }
+                    _internalState.update { it.copy(error = errorMessage, isLoading = false) }
                 }
             )
         }
@@ -269,7 +289,7 @@ class RoutingViewModel @Inject constructor(
      * Swaps the origin and destination locations.
      */
     fun swapLocations() {
-        _uiState.update { 
+        _internalState.update { 
             it.copy(
                 fromQuery = it.toQuery,
                 toQuery = it.fromQuery,
@@ -285,7 +305,7 @@ class RoutingViewModel @Inject constructor(
      * Sets the current device location as the departure point.
      */
     fun useCurrentLocationAsDeparture(latitude: Double, longitude: Double) {
-        _uiState.update { 
+        _internalState.update { 
             it.copy(
                 fromQuery = "Your location",
                 fromLocation = "$latitude,$longitude",
@@ -298,7 +318,7 @@ class RoutingViewModel @Inject constructor(
      * Sets a saved address as either the origin or destination.
      */
     fun useSavedAddress(address: SavedAddress, isDeparture: Boolean) {
-        _uiState.update { 
+        _internalState.update { 
             if (isDeparture) {
                 it.copy(
                     fromQuery = address.name,

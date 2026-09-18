@@ -57,7 +57,9 @@ fun RoutingScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions.values.contains(true)) {
+        val granted = permissions.values.contains(true)
+        viewModel.onLocationPermissionResult(granted)
+        if (granted) {
             scope.launch {
                 val location = fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).await()
                 if (location != null) {
@@ -77,7 +79,7 @@ fun RoutingScreen(
             if (location != null) {
                 viewModel.useCurrentLocationAsDeparture(location.latitude, location.longitude)
             }
-        } else {
+        } else if (viewModel.shouldRequestLocationInitial()) {
             permissionLauncher.launch(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
             )
